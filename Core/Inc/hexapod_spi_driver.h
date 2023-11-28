@@ -1,5 +1,5 @@
-#ifndef SLAVECONTROL_HEXAPOD_SPI_DRIVER_H
-#define SLAVECONTROL_HEXAPOD_SPI_DRIVER_H
+#ifndef STM32F446_CONTROL_HEXAPOD_SPI_DRIVER_H
+#define STM32F446_CONTROL_HEXAPOD_SPI_DRIVER_H
 
 #include <unistd.h>
 #include "spi.h"
@@ -24,4 +24,4 @@ typedef struct{
 void sendSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message);
 void receiveSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message);
 
-#endif //SLAVECONTROL_HEXAPOD_SPI_DRIVER_H
+#endif
