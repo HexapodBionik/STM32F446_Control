@@ -26,6 +26,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "servo_control.h"
+#include "hexapod_spi_driver.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +60,18 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+RAW_SPI_Message my_message;
+
+
+// Falling edge detection callback
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+    // If falling edge is detected then start listening to the SPI interface
+    if(GPIO_Pin == CS_INTERRUPT_Pin){
+        receiveSPIBlocking(&hspi2, &my_message);
+        analyzeRawMessage(&my_message);
+    }
+}
 
 /* USER CODE END 0 */
 
@@ -99,6 +114,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+      if(HAL_GPIO_ReadPin(CS_GPIO_Port, CS_Pin) == 0){
+          receiveSPIBlocking(&hspi2, &my_message);
+          analyzeRawMessage(&my_message);
+      }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

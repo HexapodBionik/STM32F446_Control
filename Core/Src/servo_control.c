@@ -7,6 +7,7 @@ static uint16_t map_value(float x, float in_min, float in_max, float out_min, fl
 }
 
 void startPWMServo(TIM_HandleTypeDef* tim, uint8_t channel){
+    HAL_TIM_Base_Start_IT(tim);
     HAL_TIM_PWM_Start(tim, channel);
 }
 
