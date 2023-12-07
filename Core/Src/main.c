@@ -61,8 +61,29 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-RAW_SPI_Message my_message;
+static TIM_HandleTypeDef* servo_timers[] = {
+        SERVO_11_TIMER,
+        SERVO_12_TIMER,
+        SERVO_13_TIMER,
+        SERVO_21_TIMER,
+        SERVO_22_TIMER,
+        SERVO_23_TIMER,
+        SERVO_31_TIMER,
+        SERVO_32_TIMER,
+        SERVO_33_TIMER,
+        SERVO_41_TIMER,
+        SERVO_42_TIMER,
+        SERVO_43_TIMER,
+        SERVO_51_TIMER,
+        SERVO_52_TIMER,
+        SERVO_53_TIMER,
+        SERVO_61_TIMER,
+        SERVO_62_TIMER,
+        SERVO_63_TIMER
+};
 
+
+RAW_SPI_Message my_message;
 
 // Falling edge detection callback
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
@@ -106,12 +127,25 @@ int main(void)
   MX_USART2_UART_Init();
   MX_SPI2_Init();
   MX_TIM1_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
+  MX_TIM8_Init();
+  MX_TIM12_Init();
+  MX_TIM13_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  // Initialize timers
+  for(int i = 0; i < 17; i++){
+      HAL_TIM_Base_Start_IT(servo_timers[i]);
+  }
+
   while (1)
   {
 
