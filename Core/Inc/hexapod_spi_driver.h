@@ -6,9 +6,9 @@
 
 
 // Message lengths
-#define MESSAGE_MAX_LEN         255
+#define MESSAGE_MAX_LEN         64
 #define ALL_SERVO_TYPE_LEN      37
-#define ONE_LEG_TYPE_LEN        8
+#define ONE_LEG_TYPE_LEN        14
 #define ONE_SERVO_LEN           6
 // TODO Define lengths of other types of frames when their description will be available
 
@@ -30,6 +30,7 @@ typedef struct{
 void sendSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message);
 void receiveSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message);
 
-void analyzeRawMessage(RAW_SPI_Message* message);
+void interpretMessage(RAW_SPI_Message* message);
+void interpretOneServoData(const uint8_t* data);
 
 #endif

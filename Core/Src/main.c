@@ -153,7 +153,7 @@ int main(void)
 
       if(HAL_GPIO_ReadPin(CS_GPIO_Port, CS_Pin) == 0){
           receiveSPIBlocking(&hspi2, &my_message);
-          analyzeRawMessage(&my_message);
+          interpretMessage(&my_message);
       }
 
     /* USER CODE END WHILE */

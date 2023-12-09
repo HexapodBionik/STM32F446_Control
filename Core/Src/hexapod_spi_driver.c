@@ -1,6 +1,8 @@
 #include "hexapod_spi_driver.h"
 #include "spi.h"
 #include <stdbool.h>
+#include <malloc.h>
+#include <memory.h>
 #include "servo_control.h"
 
 
@@ -73,8 +75,30 @@ void receiveSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message){
     }
 }
 
+void interpretOneServoData(const uint8_t* data){
+    uint8_t servo_id = data[0];
+    uint8_t servo_tables_index = ((servo_id / 10) - 1)*3 + ((servo_id % 10) - 1);
+    uint8_t servo_operation_type = data[1];
 
-void analyzeRawMessage(RAW_SPI_Message* message){
+    float angle = (float)data[2] + (float)data[3] / 100.f;
+    //float angle = 0;
+
+    if(servo_operation_type == 1){
+        // Start servo PWW with given angle
+        startPWMServo(servo_timers[servo_tables_index], servo_channels[servo_tables_index]);
+        setServoAngle(servo_timers[servo_tables_index], servo_channels[servo_tables_index], angle);
+    }
+    else if(servo_operation_type == 2) {
+        // Stop servo PWM
+        disablePWMServo(servo_timers[servo_tables_index], servo_channels[servo_tables_index]);
+    }
+    else if(servo_operation_type == 3) {
+        setServoAngle(servo_timers[servo_tables_index], servo_channels[servo_tables_index], angle);
+    }
+}
+
+
+void interpretMessage(RAW_SPI_Message* message){
     uint8_t type = message->pData[1];
 
     switch (type) {
@@ -85,31 +109,20 @@ void analyzeRawMessage(RAW_SPI_Message* message){
             break;
         case ONE_LEG:
             if(isFrameType(message->dataLength, ONE_LEG_TYPE_LEN)){
-
+                for(int i = 0; i < 3; i++){
+                    uint8_t* one_servo_data = malloc(4);
+                    memcpy(one_servo_data,  message->pData+2+i*(ONE_SERVO_LEN-2), 4);
+                    interpretOneServoData(one_servo_data);
+                    free(one_servo_data);
+                }
             }
             break;
         case ONE_SERVO:
             if(isFrameType(message->dataLength, ONE_SERVO_LEN)){
-                uint8_t servo_id = message->pData[2];
-                uint8_t servo_tables_index = ((servo_id / 10) - 1)*3 + ((servo_id % 10) - 1);
-                uint8_t servo_operation_type = message->pData[3];
-
-                float angle = (float)message->pData[4] + (float)message->pData[5] / 100.f;
-                //float angle = 0;
-
-                if(servo_operation_type == 1){
-                    // Start servo PWW with given angle
-                    startPWMServo(servo_timers[servo_tables_index], servo_channels[servo_tables_index]);
-                    setServoAngle(servo_timers[servo_tables_index], servo_channels[servo_tables_index], angle);
-                    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-                }
-                else if(servo_operation_type == 2) {
-                    // Stop servo PWM
-                    disablePWMServo(servo_timers[servo_tables_index], servo_channels[servo_tables_index]);
-                }
-                else if(servo_operation_type == 3) {
-                    setServoAngle(servo_timers[servo_tables_index], servo_channels[servo_tables_index], angle);
-                }
+                uint8_t* one_servo_data = malloc(4);
+                memcpy(one_servo_data,  message->pData+2, 4);
+                interpretOneServoData(one_servo_data);
+                free(one_servo_data);
             }
             break;
         case READ_ADC:
