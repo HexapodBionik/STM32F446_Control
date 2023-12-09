@@ -75,7 +75,7 @@ void receiveSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message){
 
 
 void analyzeRawMessage(RAW_SPI_Message* message){
-    uint8_t type = message->pData[0];
+    uint8_t type = message->pData[1];
 
     switch (type) {
         case ALL_SERVO:
@@ -90,24 +90,24 @@ void analyzeRawMessage(RAW_SPI_Message* message){
             break;
         case ONE_SERVO:
             if(isFrameType(message->dataLength, ONE_SERVO_LEN)){
-                uint8_t servo_id = message->pData[1];
+                uint8_t servo_id = message->pData[2];
                 uint8_t servo_tables_index = ((servo_id / 10) - 1)*3 + ((servo_id % 10) - 1);
-                uint8_t servo_operation_type = message->pData[2];
+                uint8_t servo_operation_type = message->pData[3];
 
-                float angle = (float)message->pData[3] + (float)message->pData[4] / 100.f;
+                float angle = (float)message->pData[4] + (float)message->pData[5] / 100.f;
                 //float angle = 0;
 
-                if(servo_operation_type == 0){
+                if(servo_operation_type == 1){
                     // Start servo PWW with given angle
                     startPWMServo(servo_timers[servo_tables_index], servo_channels[servo_tables_index]);
                     setServoAngle(servo_timers[servo_tables_index], servo_channels[servo_tables_index], angle);
                     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
                 }
-                else if(servo_operation_type == 1) {
+                else if(servo_operation_type == 2) {
                     // Stop servo PWM
                     disablePWMServo(servo_timers[servo_tables_index], servo_channels[servo_tables_index]);
                 }
-                else {
+                else if(servo_operation_type == 3) {
                     setServoAngle(servo_timers[servo_tables_index], servo_channels[servo_tables_index], angle);
                 }
             }

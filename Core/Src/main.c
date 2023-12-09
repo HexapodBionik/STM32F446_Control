@@ -86,6 +86,7 @@ static TIM_HandleTypeDef* servo_timers[] = {
 RAW_SPI_Message my_message;
 
 // Falling edge detection callback
+/*
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
     // If falling edge is detected then start listening to the SPI interface
     if(GPIO_Pin == CS_INTERRUPT_Pin){
@@ -93,6 +94,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
         analyzeRawMessage(&my_message);
     }
 }
+ */
 
 /* USER CODE END 0 */
 

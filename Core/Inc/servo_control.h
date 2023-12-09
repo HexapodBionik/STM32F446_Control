@@ -22,11 +22,11 @@
 #include "tim.h"
 
 // General servo variables
-#define MIN_ANGLE                               (-90.f)
-#define MAX_ANGLE                               90.f
+#define MIN_ANGLE                               0.f
+#define MAX_ANGLE                               180.f
 
-#define MIN_ANGLE_PULSE_MS                      1
-#define MAX_ANGLE_PULSE_MS                      2
+#define MIN_ANGLE_PULSE_MS                      0.544f
+#define MAX_ANGLE_PULSE_MS                      2.55f
 
 // Define servo timers
 #define SERVO_11_TIMER                          &htim1
@@ -84,7 +84,7 @@ void disablePWMServo(TIM_HandleTypeDef* tim, uint8_t channel);
 void setPWMPulseValue(TIM_HandleTypeDef* tim, uint8_t channel, uint16_t pulse_value);
 void setServoAngle(TIM_HandleTypeDef* tim, uint8_t channel, float angle);
 
-uint16_t calculateCCRValue(float min_angle, float max_angle, float angle, uint16_t min_ms, uint16_t max_ms);
+uint16_t calculateCCRValue(float min_angle, float max_angle, float angle, float min_ms, float max_ms);
 
 
 #endif

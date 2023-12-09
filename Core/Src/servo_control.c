@@ -19,10 +19,10 @@ void setPWMPulseValue(TIM_HandleTypeDef* tim, uint8_t channel, uint16_t pulse_va
     __HAL_TIM_SET_COMPARE(tim, channel, pulse_value_us);
 }
 
-uint16_t calculateCCRValue(float min_angle, float max_angle, float angle, uint16_t min_ms, uint16_t max_ms){
+uint16_t calculateCCRValue(float min_angle, float max_angle, float angle, float min_ms, float max_ms){
     // Broaden the resolution
-    uint16_t min_us = min_ms * 1000;
-    uint16_t max_us = max_ms * 1000;
+    float min_us = min_ms * 1000.f;
+    float max_us = max_ms * 1000.f;
 
     return map_value(angle, min_angle, max_angle, min_us, max_us);
 }

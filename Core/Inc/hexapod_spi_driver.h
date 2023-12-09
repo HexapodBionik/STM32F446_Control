@@ -9,7 +9,7 @@
 #define MESSAGE_MAX_LEN         255
 #define ALL_SERVO_TYPE_LEN      37
 #define ONE_LEG_TYPE_LEN        8
-#define ONE_SERVO_LEN           5
+#define ONE_SERVO_LEN           6
 // TODO Define lengths of other types of frames when their description will be available
 
 
