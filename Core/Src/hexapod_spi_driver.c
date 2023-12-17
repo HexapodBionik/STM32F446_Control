@@ -102,11 +102,6 @@ void interpretMessage(RAW_SPI_Message* message){
     uint8_t type = message->pData[1];
 
     switch (type) {
-        case ALL_SERVO:
-            if(isFrameType(message->dataLength, ALL_SERVO_TYPE_LEN)){
-
-            }
-            break;
         case ONE_LEG:
             if(isFrameType(message->dataLength, ONE_LEG_TYPE_LEN)){
                 for(int i = 0; i < 3; i++){
@@ -124,9 +119,6 @@ void interpretMessage(RAW_SPI_Message* message){
                 interpretOneServoData(one_servo_data);
                 free(one_servo_data);
             }
-            break;
-        case READ_ADC:
-            // TODO To be completed in the future
             break;
         default:
             break;

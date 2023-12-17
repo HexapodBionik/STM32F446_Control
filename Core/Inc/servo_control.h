@@ -15,7 +15,7 @@
  *  Position 90 deg:        1.5ms
  *  Position 180 deg:       2ms
  *
- *  So generally duty cycle will range from 10% - 20% of whole period
+ *  So generally duty cycle will range from 10% - 20% of the whole period
  *
  * */
 
@@ -78,13 +78,50 @@
 #define SERVO_62_CHANNEL                        TIM_CHANNEL_2
 #define SERVO_63_CHANNEL                        TIM_CHANNEL_1
 
+/**
+ * @brief Starts PWM for a servo channel using the specified timer
+ *
+ * @param tim: Pointer to the Timer Handle structure
+ * @param channel: Servo channel to start PWM for
+ */
 void startPWMServo(TIM_HandleTypeDef* tim, uint8_t channel);
+
+/**
+ * @brief Disables PWM for a servo channel using the specified timer
+ *
+ * @param tim: Pointer to the Timer Handle structure
+ * @param channel: Servo channel to disable PWM for
+ */
 void disablePWMServo(TIM_HandleTypeDef* tim, uint8_t channel);
 
+/**
+ * @brief Sets the PWM pulse value for a servo channel using the specified timer
+ *
+ * @param tim: Pointer to the Timer Handle structure
+ * @param channel: Servo channel to set the PWM pulse value for
+ * @param pulse_value: The PWM pulse value to set
+ */
 void setPWMPulseValue(TIM_HandleTypeDef* tim, uint8_t channel, uint16_t pulse_value);
+
+/**
+ * @brief Sets the servo angle for a servo channel using the specified timer
+ *
+ * @param tim: Pointer to the Timer Handle structure
+ * @param channel: Servo channel to set the angle for
+ * @param angle: The angle to set for the servo
+ */
 void setServoAngle(TIM_HandleTypeDef* tim, uint8_t channel, float angle);
 
+/**
+ * @brief Calculates the CCR (Capture/Compare Register) value for a given angle
+ *
+ * @param min_angle: Minimum angle supported by the servo
+ * @param max_angle: Maximum angle supported by the servo
+ * @param angle: Target angle to calculate CCR value for
+ * @param min_ms: Minimum pulse width in milliseconds
+ * @param max_ms: Maximum pulse width in milliseconds
+ * @return The calculated CCR value for the given angle
+ */
 uint16_t calculateCCRValue(float min_angle, float max_angle, float angle, float min_ms, float max_ms);
-
 
 #endif
