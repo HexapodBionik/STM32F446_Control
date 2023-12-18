@@ -18,11 +18,16 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include "servo_control.h"
+#include "hexapod_spi_driver.h"
 
 /* USER CODE END Includes */
 
@@ -56,6 +61,41 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+static TIM_HandleTypeDef* servo_timers[] = {
+        SERVO_11_TIMER,
+        SERVO_12_TIMER,
+        SERVO_13_TIMER,
+        SERVO_21_TIMER,
+        SERVO_22_TIMER,
+        SERVO_23_TIMER,
+        SERVO_31_TIMER,
+        SERVO_32_TIMER,
+        SERVO_33_TIMER,
+        SERVO_41_TIMER,
+        SERVO_42_TIMER,
+        SERVO_43_TIMER,
+        SERVO_51_TIMER,
+        SERVO_52_TIMER,
+        SERVO_53_TIMER,
+        SERVO_61_TIMER,
+        SERVO_62_TIMER,
+        SERVO_63_TIMER
+};
+
+
+RAW_SPI_Message my_message;
+
+// Falling edge detection callback
+/*
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+    // If falling edge is detected then start listening to the SPI interface
+    if(GPIO_Pin == CS_INTERRUPT_Pin){
+        receiveSPIBlocking(&hspi2, &my_message);
+        analyzeRawMessage(&my_message);
+    }
+}
+ */
+
 /* USER CODE END 0 */
 
 /**
@@ -87,14 +127,35 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_SPI2_Init();
+  MX_TIM1_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
+  MX_TIM8_Init();
+  MX_TIM12_Init();
+  MX_TIM13_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  // Initialize timers
+  for(int i = 0; i < 17; i++){
+      HAL_TIM_Base_Start_IT(servo_timers[i]);
+  }
+
   while (1)
   {
+
+      if(HAL_GPIO_ReadPin(CS_GPIO_Port, CS_Pin) == 0){
+          receiveSPIBlocking(&hspi2, &my_message);
+          interpretMessage(&my_message);
+      }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -114,22 +175,28 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 180;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Activate the Over-Drive mode
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -140,10 +207,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
