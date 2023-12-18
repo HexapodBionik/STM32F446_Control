@@ -49,10 +49,7 @@ static uint8_t servo_channels[] = {
 };
 
 static bool isFrameType(uint8_t frame_length, uint8_t suspected_frame_length){
-    if(frame_length == suspected_frame_length){
-        return true;
-    }
-    return false;
+    return frame_length == suspected_frame_length;
 }
 
 
