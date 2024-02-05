@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "servo_control.h"
-#include "hexapod_spi_driver.h"
+#include "hexapod_protocol.h"
 
 /* USER CODE END Includes */
 

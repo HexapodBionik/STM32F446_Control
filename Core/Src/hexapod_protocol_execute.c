@@ -1,10 +1,8 @@
-#include "hexapod_spi_driver.h"
-#include "spi.h"
-#include <stdbool.h>
+#include "hexapod_protocol_execute.h"
+#include "servo_control.h"
+#include "hexapod_protocol.h"
 #include <malloc.h>
 #include <memory.h>
-#include "servo_control.h"
-
 
 static TIM_HandleTypeDef* servo_timers[] = {
         SERVO_11_TIMER,
@@ -48,30 +46,6 @@ static uint8_t servo_channels[] = {
         SERVO_63_CHANNEL
 };
 
-static bool isFrameType(uint8_t frame_length, uint8_t suspected_frame_length){
-    return frame_length == suspected_frame_length;
-}
-
-
-void sendSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message){
-    // First send data lenth
-    HAL_SPI_Transmit_IT(hspi, &message->dataLength, 1);
-
-    HAL_SPI_Transmit_IT(hspi, message->pData, message->dataLength);
-}
-
-
-void receiveSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message){
-    HAL_StatusTypeDef status;
-
-    // Get message length
-    status = HAL_SPI_Receive(hspi, &message->dataLength, 1, HAL_MAX_DELAY);
-
-    if(status == HAL_OK){
-        HAL_SPI_Receive(hspi, message->pData, message->dataLength, HAL_MAX_DELAY);
-    }
-}
-
 void interpretOneServoData(const uint8_t* data){
     uint8_t servo_id = data[0];
     uint8_t servo_tables_index = ((servo_id / 10) - 1)*3 + ((servo_id % 10) - 1);
@@ -94,30 +68,22 @@ void interpretOneServoData(const uint8_t* data){
     }
 }
 
+void executeOneServo(const uint8_t* data){
+    uint8_t* one_servo_data = malloc(4);
+    memcpy(one_servo_data,  data+2, 4);
 
-void interpretMessage(RAW_SPI_Message* message){
-    uint8_t type = message->pData[1];
+    interpretOneServoData(one_servo_data);
 
-    switch (type) {
-        case ONE_LEG:
-            if(isFrameType(message->dataLength, ONE_LEG_TYPE_LEN)){
-                for(int i = 0; i < 3; i++){
-                    uint8_t* one_servo_data = malloc(4);
-                    memcpy(one_servo_data,  message->pData+2+i*(ONE_SERVO_LEN-2), 4);
-                    interpretOneServoData(one_servo_data);
-                    free(one_servo_data);
-                }
-            }
-            break;
-        case ONE_SERVO:
-            if(isFrameType(message->dataLength, ONE_SERVO_LEN)){
-                uint8_t* one_servo_data = malloc(4);
-                memcpy(one_servo_data,  message->pData+2, 4);
-                interpretOneServoData(one_servo_data);
-                free(one_servo_data);
-            }
-            break;
-        default:
-            break;
+    free(one_servo_data);
+}
+
+void executeOneLeg(const uint8_t* data){
+    for(int i = 0; i < 3; i++){
+        uint8_t* one_servo_data = malloc(4);
+        memcpy(one_servo_data,  data+1+i*(ONE_SERVO_LEN-2), 4);
+
+        interpretOneServoData(one_servo_data);
+
+        free(one_servo_data);
     }
 }
