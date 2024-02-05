@@ -1,7 +1,7 @@
 # Hexapod Hardware Controller
 Hexapod Hardware Controller project contains code essential for controlling hardware components of Hexapod Robotic System.
 # Hexapod System Hardware Diagram
-![HexapodSystemDiagram.png](doc/images/SystemDiagram.png)
+<div style="text-align:center"><img src="doc/images/SystemDiagram.png" /></div>
 # Servo PWM Control
 ## Timers
 The goal of controlling all 6 legs of Hexapod, each containing 3 individually addressable servo motors requires the usage of 8 timers available on STM32F446 microcontroller. Generally, it would be possible to use only 6 timers, but due to the fact that current setup uses the mircocontroller in LQFP64 package, the number of pins and connected to them peripherals is limited.
