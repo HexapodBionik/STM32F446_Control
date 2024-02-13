@@ -80,7 +80,7 @@ void executeOneServo(const uint8_t* data){
 void executeOneLeg(const uint8_t* data){
     for(int i = 0; i < 3; i++){
         uint8_t* one_servo_data = malloc(4);
-        memcpy(one_servo_data,  data+1+i*(ONE_SERVO_LEN-2), 4);
+        memcpy(one_servo_data,  data+2+i*(ONE_SERVO_LEN-2), 4);
 
         interpretOneServoData(one_servo_data);
 
