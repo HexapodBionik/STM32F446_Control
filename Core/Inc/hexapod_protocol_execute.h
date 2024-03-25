@@ -2,6 +2,7 @@
 #define HEXAPOD_PROTOCOL_EXECUTE_HPP
 
 #include <unistd.h>
+#include "adc.h"
 
 /**
  * @brief Interprets the content of a byte array representing data for one servo motor

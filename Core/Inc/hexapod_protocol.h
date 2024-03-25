@@ -2,6 +2,7 @@
 #define HEXAPOD_PROTOCOL_H
 
 #include <unistd.h>
+#include <stdbool.h>
 #include "spi.h"
 
 // Hardware Controller Hexapod Communication Protocol
@@ -21,6 +22,8 @@
 typedef enum {
     ONE_LEG = 1,
     ONE_SERVO = 2,
+    INFO = 3,
+    ADC_READ = 4
 } TYPE;
 
 // Structure representing a raw SPI message
@@ -50,6 +53,6 @@ void receiveSPIBlocking(SPI_HandleTypeDef* hspi, RAW_SPI_Message* message);
  *
  * @param message: Pointer to the SPI message structure to interpret
  */
-void interpretMessage(RAW_SPI_Message* message);
+void interpretMessage(RAW_SPI_Message* message, bool* receive, RAW_SPI_Message* transmit_message);
 
 #endif // HEXAPOD_PROTOCOL_H

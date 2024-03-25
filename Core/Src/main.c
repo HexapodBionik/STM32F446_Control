@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -136,12 +137,16 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM12_Init();
   MX_TIM13_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  bool receive = true;
+  RAW_SPI_Message transmit_message;
 
   // Initialize timers
   for(int i = 0; i < 17; i++){
@@ -152,8 +157,14 @@ int main(void)
   {
 
       if(HAL_GPIO_ReadPin(CS_GPIO_Port, CS_Pin) == 0){
-          receiveSPIBlocking(&hspi2, &my_message);
-          interpretMessage(&my_message);
+          if(receive){
+              receiveSPIBlocking(&hspi2, &my_message);
+              interpretMessage(&my_message, &receive, &transmit_message);
+          }
+          else{
+              sendSPIBlocking(&hspi2, &transmit_message);
+              receive = true;
+          }
       }
 
     /* USER CODE END WHILE */
