@@ -14,9 +14,12 @@
 #define MESSAGE_MAX_LEN         64
 #define ONE_LEG_LEN             14
 #define ONE_SERVO_LEN           6
+#define INFO_LEN                7
+#define ADC_LEN                 7
 
 
-#define HEXAPOD_RECEIVE_TIMEOUT 1000
+#define HEXAPOD_RECEIVE_TIMEOUT     1000
+#define HEXAPOD_TRANSMIT_TIMEOUT    1000
 
 // Enumeration defining message types
 typedef enum {
