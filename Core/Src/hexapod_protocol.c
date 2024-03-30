@@ -3,7 +3,7 @@
 #include "hexapod_protocol_execute.h"
 #include <memory.h>
 
-static const uint8_t INFO_array[] = {0x07, 0x03, 0x15, 0x57, 0x00, 0x00, 0x01};
+static const uint8_t INFO_array[] = {INFO_RECEIVE, INFO, INFO_FIRST_CHECK_BYTE, SECOND_CHECK_BYTE, MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
 
 
 static void convert_to_uint8_t(const uint32_t* data, uint8_t* data_table){
@@ -28,7 +28,7 @@ static void assign_to_transmit_message(RAW_SPI_Message* transmit_message, const 
 
     // Assign message length and copy data
     transmit_message->dataLength=message_length;
-    memcpy(transmit_message->pData, data_table+start_index, copy_length);
+    memcpy(transmit_message->pData+start_index, data_table, copy_length);
 }
 
 static bool isFrameType(uint8_t frame_length, uint8_t suspected_frame_length){
@@ -59,20 +59,20 @@ void interpretMessage(RAW_SPI_Message* message, bool* receive, RAW_SPI_Message* 
 
     switch (type) {
         case ONE_LEG:
-            if(isFrameType(message->dataLength, ONE_LEG_LEN)){
+            if(isFrameType(message->dataLength, ONE_LEG_TRANSMIT)){
                 executeOneLeg(message->pData);
                 *receive = true;
             }
             break;
         case ONE_SERVO:
-            if(isFrameType(message->dataLength, ONE_SERVO_LEN)){
+            if(isFrameType(message->dataLength, ONE_SERVO_TRANSMIT)){
                 executeOneServo(message->pData);
                 *receive = true;
             }
             break;
         case INFO:
             {
-                assign_to_transmit_message(transmit_message, INFO_LEN, 0, INFO_LEN, INFO_array);
+                assign_to_transmit_message(transmit_message, INFO_RECEIVE, 0, INFO_RECEIVE, INFO_array);
                 *receive = false;
                 break;
             }
@@ -85,11 +85,11 @@ void interpretMessage(RAW_SPI_Message* message, bool* receive, RAW_SPI_Message* 
                 uint8_t data_table[4];
                 convert_to_uint8_t(&ADC_DATA, data_table);
 
+                assign_to_transmit_message(transmit_message,ADC_RECEIVE, 3, 4, data_table);
+
                 transmit_message->pData[0] = 0x07; // data length
                 transmit_message->pData[1] = 0x01; // adc number
                 transmit_message->pData[2] = 0x04; // adc channel
-
-                assign_to_transmit_message(transmit_message,ADC_LEN, 3, 4, data_table);
                 *receive = false;
                 break;
             }

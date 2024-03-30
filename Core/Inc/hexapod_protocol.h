@@ -12,11 +12,13 @@
 
 // Message lengths
 #define MESSAGE_MAX_LEN         64
-#define ONE_LEG_LEN             14
-#define ONE_SERVO_LEN           6
-#define INFO_LEN                7
-#define ADC_LEN                 7
 
+static const uint8_t MAJOR_VERSION = 2;
+static const uint8_t MINOR_VERSION = 0;
+static const uint8_t PATCH_VERSION = 0;
+
+static const uint8_t INFO_FIRST_CHECK_BYTE = 21;
+static const uint8_t SECOND_CHECK_BYTE = 87;
 
 #define HEXAPOD_RECEIVE_TIMEOUT     1000
 #define HEXAPOD_TRANSMIT_TIMEOUT    1000
@@ -28,6 +30,18 @@ typedef enum {
     INFO = 3,
     ADC_READ = 4
 } TYPE;
+
+typedef enum{
+    ONE_LEG_TRANSMIT = 14,
+    ONE_SERVO_TRANSMIT = 6,
+    INFO_TRANSMIT = 2,
+    ADC_TRANSMIT = 2
+} FRAME_TRANSMIT_LEN;
+
+typedef enum{
+    INFO_RECEIVE = 7,
+    ADC_RECEIVE = 7
+} FRAME_RECEIVE_LEN;
 
 // Structure representing a raw SPI message
 typedef struct {
