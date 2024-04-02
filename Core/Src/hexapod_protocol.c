@@ -71,28 +71,28 @@ void interpretMessage(RAW_SPI_Message* message, bool* receive, RAW_SPI_Message* 
             }
             break;
         case INFO:
-            {
-                assign_to_transmit_message(transmit_message, INFO_RECEIVE, 0, INFO_RECEIVE, INFO_array);
-                *receive = false;
-                break;
-            }
+        {
+            assign_to_transmit_message(transmit_message, INFO_RECEIVE, 0, INFO_RECEIVE, INFO_array);
+            *receive = false;
+            break;
+        }
         case ADC_READ:
-            {
+        {
 
-                HAL_ADC_Start(&hadc1);
-                HAL_ADC_PollForConversion(&hadc1, 1);
-                const uint32_t ADC_DATA = HAL_ADC_GetValue(&hadc1);
-                uint8_t data_table[4];
-                convert_to_uint8_t(&ADC_DATA, data_table);
+            HAL_ADC_Start(&hadc2);
+            HAL_ADC_PollForConversion(&hadc2, 1);
+            const uint32_t ADC_DATA = HAL_ADC_GetValue(&hadc2);
+            uint8_t data_table[4];
+            convert_to_uint8_t(&ADC_DATA, data_table);
 
-                assign_to_transmit_message(transmit_message,ADC_RECEIVE, 3, 4, data_table);
+            assign_to_transmit_message(transmit_message,ADC_RECEIVE, 3, 4, data_table);
 
-                transmit_message->pData[0] = 0x07; // data length
-                transmit_message->pData[1] = 0x01; // adc number
-                transmit_message->pData[2] = 0x04; // adc channel
-                *receive = false;
-                break;
-            }
+            transmit_message->pData[0] = 0x07; // data length
+            transmit_message->pData[1] = 0x01; // adc number
+            transmit_message->pData[2] = 0x04; // adc channel
+            *receive = false;
+            break;
+        }
         default:
             break;
     }
